@@ -21,7 +21,7 @@ td, th, table {
 *This post is based on “The Evolution of Statistical Induction Heads: In-Context Learning Markov Chains” by Ben Edelman, Ezra Edelman, Surbhi Goel, Eran Malach, and Nikos Tsilivis.*
 
 
-Machine learning works based on the [inductive](https://en.wikipedia.org/wiki/Inductive_reasoning) principle that *patterns in the training data are likely to continue to hold*. Large language models are induction machines—during training, they gobble up billions of words of text, extracting myriad patterns that can be used to predict the next token. But part of what makes LLMs so powerful is that they don’t only exploit patterns from their training data—they also make use of patterns in the prompt itself. This *in-context learning* (ICL) ability is what enables LLMs to perform a task based on a few demonstrations, to mimic the style of a piece of writing, or to repeat key phrases from a prompt, all based on the principle that *patterns in the context are likely to continue to hold*. While the assumption that patterns encountered during training will generalize at inference time is essentially baked into the training procedure, the corresponding in-context claim is something the LLM needs to *learn* (by induction) during training.
+Machine learning works based on the [inductive](https://en.wikipedia.org/wiki/Inductive_reasoning) principle that *patterns in the training data are likely to continue to hold*. Large language models are induction machines—during training, they gobble up billions of words of text, extracting myriad patterns that can be used to predict the next token. But part of what makes LLMs so powerful is that they don’t only exploit patterns from their training data—they also make use of patterns in the prompt itself. This *in-context learning* (ICL) ability is what enables LLMs to perform a task based on a few demonstrations, to mimic the style of a piece of writing, or to repeat key phrases from a prompt, all based on the principle that patterns in the *context* are likely to continue to hold. While the assumption that patterns encountered during training will generalize at inference time is essentially baked into the training procedure, the corresponding in-context claim is something the LLM needs to *learn* (by induction) during training.
 
 We will focus in particular on a sub-circuit motif called an *induction head* which [researchers have found](https://transformer-circuits.pub/2022/in-context-learning-and-induction-heads/index.html) is responsible for performing some ICL computations in transformer LLMs. Induction heads define a circuit that looks for recent occurrences of the current token, and boosts the probabilities of tokens which followed the token in the input context. They have been shown to emerge when training on a large corpus of language, and contribute to in-context learning abilities. In this work, we aim to study the formation of induction heads in isolation, by introducing a synthetic task, *ICL of Markov chains (ICL-MC)*, for which an optimal solution can rely solely on induction heads.
 ## The task
@@ -31,7 +31,7 @@ We will focus in particular on a sub-circuit motif called an *induction head* wh
 
 
 To generate each training (or test) sequence in our ICL-MC task, we first sample a Markov chain from a prior distribution. A Markov chain with k states is described by a transition matrix that gives the probability of transitioning from state i to state j for all states i and j. Then we sample a sequence of tokens (states) from this Markov chain. Here are a few examples of Markov chains, and sequences drawn from them:
-![Pictorial representation of task, through two examples in a stack of cards](assets/img/mcicl/ICL-MC_small.png){: width="100%" .center-image }
+![Pictorial representation of task, through two examples in a stack of cards](assets/img/mcicl/ICL-MC_small.png){: width="75%" .center-image }
 
 
 ## Potential strategies
@@ -43,11 +43,11 @@ What would be your guess for the next state? Alice’s strategy is to choose at 
 ## What does the transformer do?
 
 However, we are not interested in how humans predict tokens, but how transformers do so. Let’s begin our exploration by observing the loss curve of a transformer trained online on ICL-MC: 
-![Test Loss for 3 Symbol Transformer](assets/img/mcicl/3symb_2gram_test_loss.png){: width="100%" .center-image }
+![Test Loss for 3 Symbol Transformer](assets/img/mcicl/3symb_2gram_test_loss.png){: width="75%" .center-image }
 Intriguingly, we see what looks like multiple phase transitions! After an initial period of rapidly falling loss, there is a long plateau period where the model barely improves, followed by a second rapid drop to very low loss.
 
 Our hypothesis was that the network might be starting out with Alice’s “uniform” strategy; then adopting Bob’s “unigram” strategy for a long time, before it finally converges to Carol’s optimal “bigram” strategy. We can test this hypothesis by measuring the KL divergence between the predictions of each strategy and the predictions of the model over the course of training:
-![Similarity Scores for 3 Symbol Transformer](assets/img/mcicl/3symb_2gram_similarity.png){: width="100%" .center-image }
+![Similarity Scores for 3 Symbol Transformer](assets/img/mcicl/3symb_2gram_similarity.png){: width="75%" .center-image }
 
 
 In this plot, the blue curve, corresponding to the distance between the model’s solution and the uniform strategy, starts off at zero—indicating that this is the solution at initialization. Then, the orange “unigram” curve drops near zero and stays low throughout the long plateau, indicating that the model’s predictions are explained by the unigram solution. Finally, at the same time as we saw the final phase transition in the loss curve, the orange curve rises and the green “bigram” curve drops, which tells us that the model has landed near the bigram solution. The background is shaded according to which solution the model is closest to at any particular time. In short, we have validated the hypothesis!
@@ -78,17 +78,17 @@ In order to approach this question, we consider two extreme types of Markov chai
 For doubly stochastic Markov chains, the unigram solution is no better than the trivial uniform solution, because the expected frequencies of the different states are always the same (note that in all our experiments, we sample the initial state from the Markov chain’s stationary distribution). For unigram-optimal Markov chains, as the name suggests, the unigram solution is optimal, because the bigram statistics are entirely determined by the unigram statistics.
 
 First, let’s see what happens when we train our transformer on only doubly stochastic Markov chains, and evaluate on our original full distribution over Markov chains:
- ![Test loss (in the original distribution) of a 4 symbol transformer with doubly stochastic training data.](/assets/img/mcicl/4symb_ds_test_loss.png)
+ ![Test loss (in the original distribution) of a 4 symbol transformer with doubly stochastic training data.](/assets/img/mcicl/4symb_ds_test_loss.png){: width="75%" .center-image }
 
 
 The model still generalizes quite well on the full data distribution even though it has been trained only on a small slice of it. Unsurprisingly, there is no intermediate unigram plateau (there is only one phase transition instead of two). By inspecting the final attention weights, we can see that the network has indeed learned an induction head:
 
- ![Attention weights of the network are an induction head.](/assets/img/mcicl/4symb_2gram_ds_attn.png){: width="100%" .center-image }
+ ![Attention weights of the network are an induction head.](/assets/img/mcicl/4symb_2gram_ds_attn.png){: width="75%" .center-image }
 
 
 Now, let’s try mixing in some unigram-optimal Markov chains into the training distribution:
 
-| ![Comparison in test loss (in the original distribution) of a 4 symbol transformer with doubly stochastic training data, and 75% Doubly Stochastic 25% Unigrams. The pure doubly stochastic training data results in faster convergence.](/assets/img/mcicl/4symb_DS_mixture.png){: width="100%" .center-image } |
+| ![Comparison in test loss (in the original distribution) of a 4 symbol transformer with doubly stochastic training data, and 75% Doubly Stochastic 25% Unigrams. The pure doubly stochastic training data results in faster convergence.](/assets/img/mcicl/4symb_DS_mixture.png){: width="75%" .center-image } |
 |:--:|
 | *Comparison between transformers trained on the two distributions. In the doubly stochastic distribution, transition matrices are uniformly random 4x4 doubly stochastic matrices. In the unigram distribution, every row in the transition matrix is the same, and is uniformly random over probability vectors of length 4. The error bars are 95% confidence intervals calculated over 10 distinct random seeds (which randomize initialization and data sampling), and the lines denote the mean loss over the seeds. For each seed, the same doubly stochastic sequences are used in both the pure doubly stochastic distribution, and the mixture distribution.* |
 
@@ -98,9 +98,9 @@ The X-axis scale only counts training sequences that came from doubly stochastic
 
 Due to its simplicity, our learning setup is amenable to mathematical analysis of the optimization process. This provides numerous insights into how the model passes through the different strategies and what happens to the different components of the transformer during training. In particular, in a simplified linear transformer architecture, we find that, starting from an “uninformed” initialization, there is signal for the formation of the second layer, but not for the first. However, once the second layer starts implementing its part, the first layer also starts to click. We suspect that this coupling is responsible (at least partially) for the plateaus and the sudden transitions between stages. Our analysis further elucidates the role of learning rate and the effect of the data distribution. For both our theory and our experiments, we used relative positional encodings. The analysis suggests that there should be a curious emergent even-odd asymmetry in the first-layer positional encodings during training, and we confirmed this empirically in the full transformer as well! See the paper for more details.
 ## A Markov ICL renaissance
-A testament to the elegance and appeal of our problem formulation is the almost parallel announcement of several independent works from other groups that studied very similar problems in language modeling! [Akyürek et al](https://arxiv.org/abs/2401.12973). study how different architectures (not only transformers) learn to in-context learn formal languages, which in some cases correspond to n-Markovian Models (n-grams). Their experiments with synthetic languages motivated architectural changes which improve natural language modeling in large scale datasets. [Hoogland et al](https://arxiv.org/abs/2402.02364). documented how transformers trained on natural language and synthetic linear regression tasks learn to in-context learn in stages, implementing different strategies at each stage. [Makkuva et al](https://arxiv.org/abs/2402.04161). also argued for the adoption of Markov Chains to understand transformers and in their paper they study the loss landscape of transformers trained on sequences sampled from a single Markov Chain. Perhaps closest to our work, [Nichani et al](https://arxiv.org/abs/2402.14735). introduced a general family of in-context learning tasks with causal structure, a special case of which is in-context Markov chains. The authors proved that a simplified transformer architecture can learn to identify the causal relationships by training via gradient descent. They draw connections to well known algorithms for this problem, and also characterize the ability of the trained models to adapt to out-of-distribution data. There are many cool similarities (and differences) between their and our work—we hope to discuss these in more detail in the next version of our paper. In-context learning Markov Chains (or more general Markovian models) with language models seems to us to be a fruitful task for understanding these models better, and we are excited by the recent burst of activity in this direction! (*apologies if we missed your recent work!*)
+A testament to the elegance and appeal of our problem formulation is the almost parallel announcement of several independent works from other groups that studied very similar problems in language modeling! [Akyürek et al](https://arxiv.org/abs/2401.12973). study how different architectures (not only transformers) learn to in-context learn formal languages, which in some cases correspond to n-Markovian Models (n-grams). Their experiments with synthetic languages motivated architectural changes which improve natural language modeling in large scale datasets. [Hoogland et al](https://arxiv.org/abs/2402.02364). documented how transformers trained on natural language and synthetic linear regression tasks learn to in-context learn in stages, implementing different strategies at each stage. [Makkuva et al](https://arxiv.org/abs/2402.04161). also argued for the adoption of Markov Chains to understand transformers and in their paper they study the loss landscape of transformers trained on sequences sampled from a single Markov Chain. 
 
-Check out [our paper!](https://arxiv.org/abs/2402.11004)
+Perhaps closest to our work, [Nichani et al](https://arxiv.org/abs/2402.14735). introduced a general family of in-context learning tasks with causal structure, a special case of which is in-context Markov chains. The authors proved that a simplified transformer architecture can learn to identify the causal relationships by training via gradient descent. They draw connections to well known algorithms for this problem, and also characterize the ability of the trained models to adapt to out-of-distribution data. There are many cool similarities (and differences) between their and our work—we hope to discuss these in more detail in the next version of our paper. In-context learning Markov Chains (or more general Markovian models) with language models seems to us to be a fruitful task for understanding these models better, and we are excited by the recent burst of activity in this direction! (*apologies if we missed your recent work!*)
 ## Bonus: trigrams and more
 
 A natural follow up is to study processes where the state can depend on multiple preceding tokens, not just one—n-grams, not just bigrams. It is straightforward to extend our training distribution in this way, by sampling transition matrices with rows corresponding to tuples of states.
@@ -108,12 +108,12 @@ A natural follow up is to study processes where the state can depend on multiple
 When we train our two-layer transformer on n-gram distribution, it bottoms out at the performance of the bigram strategy, which is suboptimal for n>2. But if we increase the number of attention heads in the first layer from 1 to n-1, then the model achieves dramatically lower loss! Under the hood, the different first-layer heads are specializing: one head looks back by 1, another head looks back by 2, and so on, so that together they look at the previous n-1 tokens. Experimentally, the models still learn in phases, working up from unigrams, to bigrams, to trigrams, all the way to n-grams!
 
 
-<video preload="metadata" controls="" width="100%">
+<video class="center-image" preload="metadata" controls="" width="100%">
    <source src='/assets/img/mcicl/animate_trigrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
 </video>
-<video preload="metadata" controls="" width="100%">
+<video class="center-image" preload="metadata" controls="" width="100%" >
    <source src='/assets/img/mcicl/animate_tetragrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
 </video>
 
-
+Check out [our paper!](https://arxiv.org/abs/2402.11004)
 
