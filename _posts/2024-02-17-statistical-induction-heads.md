@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The Evolution of Statistical Induction Heads"
-author: "Ben L. Edelman, Ezra Edelman, Surbhi Goel, Eran Malach, and Nikos Tsilivis"
+author: "Ben Edelman, Ezra Edelman, Surbhi Goel, Eran Malach, and Nikos Tsilivis"
 categories: journal
 tags: [documentation,sample]
 image: phase.png
@@ -18,6 +18,8 @@ td, th, table {
     display: block;
 }
 </style>
+By [Ben Edelman](https://www.benjaminedelman.com), [Ezra Edelman](https://www.ezraedelman.com), [Surbhi Goel](https://www.surbhigoel.com/), [Eran Malach](https://www.eranmalach.com/), and [Nikos Tsilivis](https://cims.nyu.edu/~nt2231/page.html)
+
 *This post is based on “The Evolution of Statistical Induction Heads: In-Context Learning Markov Chains” by Ben Edelman, Ezra Edelman, Surbhi Goel, Eran Malach, and Nikos Tsilivis.*
 
 
@@ -98,16 +100,15 @@ The X-axis scale only counts training sequences that came from doubly stochastic
 
 Due to its simplicity, our learning setup is amenable to mathematical analysis of the optimization process. This provides numerous insights into how the model passes through the different strategies and what happens to the different components of the transformer during training. In particular, in a simplified linear transformer architecture, we find that, starting from an “uninformed” initialization, there is signal for the formation of the second layer, but not for the first. However, once the second layer starts implementing its part, the first layer also starts to click. We suspect that this coupling is responsible (at least partially) for the plateaus and the sudden transitions between stages. Our analysis further elucidates the role of learning rate and the effect of the data distribution. For both our theory and our experiments, we used relative positional encodings. The analysis suggests that there should be a curious emergent even-odd asymmetry in the first-layer positional encodings during training, and we confirmed this empirically in the full transformer as well! See the paper for more details.
 ## A Markov ICL renaissance
-A testament to the elegance and appeal of our problem formulation is the almost parallel announcement of several independent works from other groups that studied very similar problems in language modeling! [Akyürek et al](https://arxiv.org/abs/2401.12973). study how different architectures (not only transformers) learn to in-context learn formal languages, which in some cases correspond to n-Markovian Models (n-grams). Their experiments with synthetic languages motivated architectural changes which improve natural language modeling in large scale datasets. [Hoogland et al](https://arxiv.org/abs/2402.02364). documented how transformers trained on natural language and synthetic linear regression tasks learn to in-context learn in stages, implementing different strategies at each stage. [Makkuva et al](https://arxiv.org/abs/2402.04161). also argued for the adoption of Markov Chains to understand transformers and in their paper they study the loss landscape of transformers trained on sequences sampled from a single Markov Chain. 
+A testament to the elegance and appeal of our problem formulation is the almost parallel announcement of several independent works from other groups that study very similar problems in language modeling! [Akyürek et al](https://arxiv.org/abs/2401.12973). study how different architectures (not only transformers) learn to in-context learn formal languages, which in some cases correspond to n-Markovian Models (n-grams). Their experiments with synthetic languages motivate architectural changes which improve natural language modeling in large scale datasets. [Hoogland et al](https://arxiv.org/abs/2402.02364). document how transformers trained on natural language and synthetic linear regression tasks learn to in-context learn in stages, implementing different strategies at each stage. [Makkuva et al](https://arxiv.org/abs/2402.04161). also argue for the adoption of Markov Chains to understand transformers and in their paper they study the loss landscape of transformers trained on sequences sampled from a single Markov Chain. 
 
-Perhaps closest to our work, [Nichani et al](https://arxiv.org/abs/2402.14735). introduced a general family of in-context learning tasks with causal structure, a special case of which is in-context Markov chains. The authors proved that a simplified transformer architecture can learn to identify the causal relationships by training via gradient descent. They draw connections to well known algorithms for this problem, and also characterize the ability of the trained models to adapt to out-of-distribution data. There are many cool similarities (and differences) between their and our work—we hope to discuss these in more detail in the next version of our paper. In-context learning Markov Chains (or more general Markovian models) with language models seems to us to be a fruitful task for understanding these models better, and we are excited by the recent burst of activity in this direction! (*apologies if we missed your recent work!*)
-## Bonus: trigrams and more
+Perhaps closest to our work, [Nichani et al](https://arxiv.org/abs/2402.14735). introduces a general family of in-context learning tasks with causal structure, a special case of which is in-context Markov chains. The authors prove that a simplified transformer architecture can learn to identify the causal relationships by training via gradient descent. They draw connections to well known algorithms for this problem, and also characterize the ability of the trained models to adapt to out-of-distribution data. There are many cool similarities (and differences) between their and our work—we hope to discuss these in more detail in the next version of our paper. In-context learning Markov Chains (or more general Markovian models) with language models seems to us to be a fruitful task for understanding these models better, and we are excited by the recent burst of activity in this direction! (*apologies if we missed your recent work!*)
 
 A natural follow up is to study processes where the state can depend on multiple preceding tokens, not just one—n-grams, not just bigrams. It is straightforward to extend our training distribution in this way, by sampling transition matrices with rows corresponding to tuples of states.
 
 When we train our two-layer transformer on n-gram distribution, it bottoms out at the performance of the bigram strategy, which is suboptimal for n>2. But if we increase the number of attention heads in the first layer from 1 to n-1, then the model achieves dramatically lower loss! Under the hood, the different first-layer heads are specializing: one head looks back by 1, another head looks back by 2, and so on, so that together they look at the previous n-1 tokens. Experimentally, the models still learn in phases, working up from unigrams, to bigrams, to trigrams, all the way to n-grams!
 
-In the following videos, the different colored lines in the attention visualization correspond to different heads.
+In the following videos, the different colors in the first layer attention visualization in the attention visualization correspond to different heads.
 
 <video class="center-image" preload="metadata" controls="" width="100%">
    <source src='/assets/img/mcicl/animate_trigrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
@@ -117,4 +118,3 @@ In the following videos, the different colored lines in the attention visualizat
 </video>
 
 Check out [our paper!](https://arxiv.org/abs/2402.11004)
-
