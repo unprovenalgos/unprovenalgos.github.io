@@ -5,6 +5,9 @@ author: "Ben Edelman, Ezra Edelman, Surbhi Goel, Eran Malach, and Nikos Tsilivis
 categories: journal
 tags: [documentation,sample]
 image: phase.png
+excerpt: "
+By [Ben Edelman](https://www.benjaminedelman.com), [Ezra Edelman](https://www.ezraedelman.com), [Surbhi Goel](https://www.surbhigoel.com/), [Eran Malach](https://www.eranmalach.com/), and [Nikos Tsilivis](https://cims.nyu.edu/~nt2231/page.html). 
+Machine learning works based on the [inductive](https://en.wikipedia.org/wiki/Inductive_reasoning) principle that *patterns in the training data are likely to continue to hold*. Large language models are induction machines—during training, they gobble up billions of words of text, extracting myriad patterns that can be used to predict the next token. But part of what makes LLMs so powerful is that they don’t only exploit patterns from their training data—they also make use of patterns in the prompt itself. This *in-context learning* (ICL) ability is what enables LLMs to perform a task based on a few demonstrations, to mimic the style of a piece of writing, or to repeat key phrases from a prompt, all based on the principle that patterns in the *context* are likely to continue to hold. While the assumption that patterns encountered during training will generalize at inference time is essentially baked into the training procedure, the corresponding in-context claim is something the LLM needs to *learn* (by induction) during training."
 ---
 <!-- <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
 <style>
