@@ -57,7 +57,7 @@ In this plot, the blue curve, corresponding to the distance between the model’
 
 ## How does the transformer do it?
 The KL divergence plot told us about the *functional* behavior of the network, but it didn’t tell us how the network implements its solutions. To gain some mechanistic insight, let’s peer into the network’s internal attention weights for a single example input:
-<video preload="metadata" controls="" width="100%">
+<video preload="metadata" controls="" width="100%" autoplay loop>
    <source src='/assets/img/mcicl/animate_attn_loss.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
 </video>
 
@@ -115,10 +115,10 @@ When we train our two-layer transformer on n-gram distribution, it bottoms out a
 
 In the following videos, the different colors in the first layer attention visualization in the attention visualization correspond to different heads.
 
-<video class="center-image" preload="metadata" controls="" width="100%">
+<video class="center-image" preload="metadata" controls="" width="100%" autoplay loop>
    <source src='/assets/img/mcicl/animate_trigrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
 </video>
-<video class="center-image" preload="metadata" controls="" width="100%" >
+<video class="center-image" preload="metadata" controls="" width="100%" autoplay loop>
    <source src='/assets/img/mcicl/animate_tetragrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
 </video>
 
