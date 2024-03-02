@@ -113,7 +113,7 @@ A natural follow up is to study processes where the state can depend on multiple
 
 When we train our two-layer transformer on n-gram distribution, it bottoms out at the performance of the bigram strategy, which is suboptimal for n>2. But if we increase the number of attention heads in the first layer from 1 to n-1, then the model achieves dramatically lower loss! Under the hood, the different first-layer heads are specializing: one head looks back by 1, another head looks back by 2, and so on, so that together they look at the previous n-1 tokens. Experimentally, the models still learn in phases, working up from unigrams, to bigrams, to trigrams, all the way to n-grams!
 
-In the following videos, the different colors in the first layer attention visualization in the attention visualization correspond to different heads.
+In the following videos, the different colors in the first layer attention visualization correspond to different heads.
 
 <video class="center-image" preload="metadata" controls="" width="100%" autoplay loop>
    <source src='/assets/img/mcicl/animate_trigrams.mp4' type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'/>
