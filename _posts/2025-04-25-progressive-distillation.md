@@ -4,7 +4,7 @@ title: "How Progressive Distillation Unlocks Faster training in AI Models"
 author: "Abhishek Panigrahi, Bingbin Liu, Sadhika Malladi, Andrej Risteski, Surbhi Goel"
 categories: journal
 tags: [documentation,sample]
-image: phase.png
+image: top_prog_distil.png
 excerpt: "By [Abhishek Panigrahi](https://abhishekpanigrahi1996.github.io/), [Bingbin Liu](https://clarabing.github.io), [Sadhika Malladi](https://www.cs.princeton.edu/~smalladi/), [Andrej Risteski](https://www.andrew.cmu.edu/user/aristesk/) and [Surbhi Goel](https://www.surbhigoel.com/).
 **TL; DR** Progressive distillation, where the student model distills from several intermediate teachers, is shown to outperform distilling directly from the strongest teacher. Our work provides an explanation to progressive distillation’s effectiveness, from an optimization perspective. Intuitively, the intermediate teacher checkpoints provide an “implicit curriculum” of easier-to-learn subtasks, which eases the student’s optimization. We formalize this idea into provable optimization benefits on learning sparse parity, and provide empirical evidence on broader tasks. Paper will be presented as an Oral in ICLR 2025 (to be held in Singapore)."
 ---
