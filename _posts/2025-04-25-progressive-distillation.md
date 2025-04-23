@@ -1,161 +1,36 @@
-
 ---
-
-  
-
-  
-
 layout: post
-
-  
-
-  
-
 title: "How Progressive Distillation Unlocks Faster training in AI Models"
-
-  
-
-  
-
 author: "Abhishek Panigrahi, Bingbin Liu, Sadhika Malladi, Andrej Risteski, Surbhi Goel"
-
-  
-
-  
-
 categories: journal
-
-  
-
-  
-
 tags: [documentation,sample]
-
-  
-
-  
-
 image: phase.png
-
-  
-
-  
-
 excerpt: "By [Abhishek Panigrahi](https://abhishekpanigrahi1996.github.io/), [Bingbin Liu](https://clarabing.github.io), [Sadhika Malladi](https://www.cs.princeton.edu/~smalladi/), [Andrej Risteski](https://www.andrew.cmu.edu/user/aristesk/) and [Surbhi Goel](https://www.surbhigoel.com/).
-
-  
-
-  
-
-**TL; DR** Progressive distillation, where the student model distills from several intermediate teachers, is shown to outperform distilling directly from the strongest teacher. Our work provides an explanation to progressive distillation’s effectiveness, from an optimization perspective. Intuitively, the intermediate teacher checkpoints provide an “implicit curriculum” of easier-to-learn subtasks, which eases the student’s optimization. We formalize this idea into provable optimization benefits on learning sparse parity, and provide empirical evidence on broader tasks. Paper will be presented as an Oral in ICLR 2025 (to be held in Singapore).
-
-
+**TL; DR** Progressive distillation, where the student model distills from several intermediate teachers, is shown to outperform distilling directly from the strongest teacher. Our work provides an explanation to progressive distillation’s effectiveness, from an optimization perspective. Intuitively, the intermediate teacher checkpoints provide an “implicit curriculum” of easier-to-learn subtasks, which eases the student’s optimization. We formalize this idea into provable optimization benefits on learning sparse parity, and provide empirical evidence on broader tasks. Paper will be presented as an Oral in ICLR 2025 (to be held in Singapore)."
 ---
-
-
 <!-- <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
-
-  
-
-  
-
 <style>
-
-  
-
-  
-
 td, th, table {
-
-  
-
-  
-
-border: none!important;
-
-  
-
-  
-
-padding: 0!important;
-
-  
-
-  
-
+   border: none!important;
+   padding: 0!important;
 }
-
-  
-
-  
-
 .center-image
-
-  
-
-  
-
 {
-
-  
-
-  
-
-margin: 0 auto;
-
-  
-
-  
-
-display: block;
-
-  
-
-  
-
+    margin: 0 auto;
+    display: block;
 }
-
-  
-
-  
-
 </style>
-
-  
-
-  
-
 By [Abhishek Panigrahi](https://abhishekpanigrahi1996.github.io/), [Bingbin Liu](https://clarabing.github.io), [Sadhika Malladi](https://www.cs.princeton.edu/~smalladi/), [Andrej Risteski](https://www.andrew.cmu.edu/user/aristesk/) and [Surbhi Goel](https://www.surbhigoel.com/)
-
-  
-
-  
-
-  
 
 *This post is based on [“Progressive distillation induces an implicit curriculum”](https://arxiv.org/abs/2410.05464) by Abhishek Panigrahi, Bingbin Liu, Sadhika Malladi, Andrej Risteski, and Surbhi Goel*
 
   
-
-  
-
+**TL; DR** Progressive distillation, where the student model distills from several intermediate teachers, is shown to outperform distilling directly from the strongest teacher. Our work provides an explanation to progressive distillation’s effectiveness, from an optimization perspective. Intuitively, the intermediate teacher checkpoints provide an “implicit curriculum” of easier-to-learn subtasks, which eases the student’s optimization. We formalize this idea into provable optimization benefits on learning sparse parity, and provide empirical evidence on broader tasks. Paper will be presented as an Oral in ICLR 2025 (to be held in Singapore).
   
 
 ## Knowledge Distillation and the capacity gap
 
-  
-
-  
-
-
-  
 Knowledge distillation has been a cornerstone technique in training AI models ([Hinton 2015](https://arxiv.org/abs/1503.02531)). The idea is simple: train a smaller model (student) using the output of a larger, more capable model (teacher). A common variant is to distill from the predictions, where the loss function is defined by a KL divergence loss between the predictions of the student and a teacher model. This form of distillation can be viewed as a variant of standard cross entropy training, where we change the label distribution from a point mass to the distribution defined by the teacher’s output.
-  
-
-  
-
-------
-
   
 
 —----
