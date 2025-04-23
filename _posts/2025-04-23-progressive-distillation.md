@@ -40,7 +40,7 @@ Knowledge distillation has been a cornerstone technique in training AI models ([
 **Knowledge Distillation:** We compare the student’s model output with a teacher’s model output using a KL divergence loss.
   
 
-![CE vs Distillation](assets/img/prog_distil/fig1.png){: width="30%" .center-image }
+![CE vs Distillation](assets/img/prog_distil/fig1.png){: width="60%" .center-image }
 
 ------
 
@@ -51,9 +51,9 @@ It might feel natural to think that the better the teacher, the better the disti
 ## Faster training with progressive distillation
 
 
-A common mitigation is to let the student progressively distill from increasingly more performant teachers, which was recently used to train [Gemini Flash](https://arxiv.org/abs/2403.05530). In our work, we consider a particular form of progressive distillation which trains the student using outputs from intermediate checkpoints of the teacher. Figure 1 shows an example where the intermediate checkpoints are chosen at regular intervals.
+A common mitigation is to let the student progressively distill from increasingly more performant teachers, which was recently used to train [Gemini Flash](https://arxiv.org/abs/2403.05560). In our work, we consider a particular form of progressive distillation which trains the student using outputs from intermediate checkpoints of the teacher. Figure 1 shows an example where the intermediate checkpoints are chosen at regular intervals.
 
-![Progressive Distillation](assets/img/prog_distil/fig2.png){: width="30%" .center-image }
+![Progressive Distillation](assets/img/prog_distil/fig2.png){: width="60%" .center-image }
 
   
 
@@ -69,10 +69,10 @@ In all cases, progressive distillation enables a student model (MLP or Transform
 
 
   
-![Training speed of progressive distillation](assets/img/prog_distil/main.png){: width="30%" .center-image }
+![Training speed of progressive distillation](assets/img/prog_distil/main.png){: width="60%" .center-image }
 
 
-This aligns with the observations of an extensive line of work on progressive distillation. For example, [Mirzadeh et al.,2019](https://arxiv.org/abs/1902.03393); [Jin et al.,2019](https://openaccess.thecvf.com/content_ICCV_2019/html/Jin_Knowledge_Distillation_via_Route_Constrained_Optimization_ICCV_2019_paper.html); [Jafari et al., 2021](https://arxiv.org/abs/2104.07163); [Harutyunyan et al., 2022](https://arxiv.org/abs/2301.12245) show performance improvements on vision tasks. One common reasoning behind the success of progressive distillation is that it reduces the``capacity gap’’ between the teacher and the student, which helps a student generalize better. Instead, we show an optimization benefit of progressive distillation, where the student learns faster due to an easy-to-learn curriculum supervision from the intermediate checkpoints.
+This aligns with the observations of an extensive line of work on progressive distillation. For example, [Mirzadeh et al.,2019](https://arxiv.org/abs/1902.03393); [Jin et al.,2019](https://openaccess.thecvf.com/content_ICCV_2019/html/Jin_Knowledge_Distillation_via_Route_Constrained_Optimization_ICCV_2019_paper.html); [Jafari et al., 2021](https://arxiv.org/abs/2104.07163); [Harutyunyan et al., 2022](https://arxiv.org/abs/2601.12245) show performance improvements on vision tasks. One common reasoning behind the success of progressive distillation is that it reduces the``capacity gap’’ between the teacher and the student, which helps a student generalize better. Instead, we show an optimization benefit of progressive distillation, where the student learns faster due to an easy-to-learn curriculum supervision from the intermediate checkpoints.
 
 
 ## Underlying mechanism: Implicit Curriculum in feature learning provides easier-to-learn signals
@@ -92,33 +92,33 @@ Here, we will extensively study the behavior of progressive distillation on spar
 ## Sparse Parity
 
 
-Sparse parity is a well studied synthetic task that has been regularly used to understand how neural networks learn the right features for solving a task ([Barak et al’22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/884baf65392170763b27c914087bde01-Abstract-Conference.html), [Edelman et al.’23](https://arxiv.org/abs/2309.03800)). In this task, the input is a boolean sequence containing +1 and -1, and the output is a **product of the input coordinates at a hidden sparse set of indices**, called the **support**. 
+Sparse parity is a well studied synthetic task that has been regularly used to understand how neural networks learn the right features for solving a task ([Barak et al’22](https://proceedings.neurips.cc/paper_files/paper/2022/hash/884baf65392170763b27c914087bde01-Abstract-Conference.html), [Edelman et al.’23](https://arxiv.org/abs/2609.03800)). In this task, the input is a boolean sequence containing +1 and -1, and the output is a **product of the input coordinates at a hidden sparse set of indices**, called the **support**. 
   
-![Sparse Parity](assets/img/prog_distil/fig3.png){: width="30%" .center-image }
+![Sparse Parity](assets/img/prog_distil/fig3.png){: width="60%" .center-image }
 
 
-The task of sparse parity has been known to be a computationally difficult problem ([kearns et al.'98](https://dl.acm.org/doi/10.1145/293347.293351)). This is because to solve the problem, the learning algorithm needs to search for the hidden support of indices from input and label pairs. Because there are exponentially many candidates, [Edelman’23](https://arxiv.org/abs/2309.03800) shows that learning sparse parity with a gradient based algorithm requires the **total amount of compute** to grow **exponentially with the size of the hidden support**. The total amount of compute is measured by a product of the size of the training model and the total time required to train. Informally, this suggests that a larger model will learn faster than a smaller model.
+The task of sparse parity has been known to be a computationally difficult problem ([kearns et al.'98](https://dl.acm.org/doi/10.1145/293347.293351)). This is because to solve the problem, the learning algorithm needs to search for the hidden support of indices from input and label pairs. Because there are exponentially many candidates, [Edelman’23](https://arxiv.org/abs/2609.03800) shows that learning sparse parity with a gradient based algorithm requires the **total amount of compute** to grow **exponentially with the size of the hidden support**. The total amount of compute is measured by a product of the size of the training model and the total time required to train. Informally, this suggests that a larger model will learn faster than a smaller model.
 
 
 When we train an MLP (or a transformer) on this task, we observe a **sharp phase transition** in performance where the model rapidly transitions from random guessing to near-perfect accuracy. As suggested by our discussion above, we observe that **wider MLPs** (or **transformers with more attention heads**) learn faster than smaller (narrower) models. Intuitively, the dormant phase before this transition indicates a search phase for the model, where the model’s neurons search for the support. A larger model can search faster, because of its higher capacity in terms of the number of neurons that it can use to conduct the search.
 
-![Training speed of big models](assets/img/prog_distil/fig4.png){: width="30%" .center-image }
+![Training speed of big models](assets/img/prog_distil/fig4.png){: width="60%" .center-image }
 
 Now, we compare different distillation strategies to train a smaller model faster, using the checkpoints of a larger model that trained successfully. We observe that **progressive distillation enables the student to learn at the same speed as the teacher!** However, one-shot distillation, where we use output of the final perfect teacher checkpoint, fails to train the student. This is expected as the final teacher checkpoint which has perfectly learned the task won’t provide any additional information compared to the true labels themselves.
 
-![Progressive distillation faster](assets/img/prog_distil/fig5.png){: width="30%" .center-image }
+![Progressive distillation faster](assets/img/prog_distil/fig5.png){: width="60%" .center-image }
 
 **Q1: How do the intermediate checkpoints help during progressive distillation?**
 
 Before delving into details on progressive distillation, let's break down the difficulty in learning sparse parity. As discussed before, sparse parity is known to be a difficult task, because of the difficulty in searching for the right set of indices, that form the **support**, from input-label pairs. However, the task **becomes easy if we had access to linear functions on the support coordinates.** Say, we had access to  **noisy labels**, where the noise depends on a linear function on the support coordinates, with the noise removed slowly over time. One can then show that with access to such noisy labels, the sparse parity task can be  **easily learned in polynomial** time.
 
   
-![Breaking sparse parity](assets/img/prog_distil/fig6.png){: width="30%" .center-image }
+![Breaking sparse parity](assets/img/prog_distil/fig6.png){: width="60%" .center-image }
 
 
 The secret of progressive distillation is that the predictions of certain intermediate checkpoints **closely resemble** the noisy labels. More formally, the intermediate checkpoint that falls within the sharp phase transition of the teacher **leaks the information on the support** to the student, **via  easier-to-learn functions**. These are also responsible for **the errors or mistakes that its output makes.** Thus, a student learns better when learning from the teacher's mistakes during the course of training, which forms an easy-to-learn curriculum.
 
-![Breaking sparse parity](assets/img/prog_distil/fig7.png){: width="30%" .center-image }
+![Breaking sparse parity](assets/img/prog_distil/fig7.png){: width="60%" .center-image }
 
 
 
@@ -126,7 +126,7 @@ The secret of progressive distillation is that the predictions of certain interm
 
 No! In fact, we show that instead of storing all intermediate checkpoints of the teacher, only **two teacher checkpoints** are needed for successful and efficient progressive distillation. The first teacher checkpoint should **fall during the phase transition** of the teacher, while the second checkpoint can be set to be the final teacher checkpoint. This supports our claim that progressive distillation is successful because of helpful noise present in the predictions of the teacher checkpoint during its phase transition.
 
-![2-shot distillation](assets/img/prog_distil/fig8.png){: width="30%" .center-image }
+![2-shot distillation](assets/img/prog_distil/fig8.png){: width="60%" .center-image }
 
 
 
@@ -141,13 +141,13 @@ The benefit of an implicit curriculum extends beyond sparse parity. In the follo
 
 - Motivated by observations on PCFG, we  measure the change in behavior of the models across the phases through the dependence of their predictions on **n-gram** neighboring context. We observe (see middle figure below) inflection points in the model's dependence on **3-gram** neighboring context during the second phase, after which the model transitions to using longer **n-gram** context for predictions. We call this an **n-gram curriculum**.
 
-![real-world](assets/img/prog_distil/fig9.png){: width="30%" .center-image }
+![real-world](assets/img/prog_distil/fig9.png){: width="60%" .center-image }
 
 ## More details on the n-gram curriculum on PCFGs
 
 Here, we dive a little deeper into our experiments on the n-gram curriculum. We use PCFGs as our synthetic testbed and discuss in the setting of BERT training. PCFGs represent a simplistic synthetic setup primarily designed to capture hierarchical relationships between words in a sentence.  BERT models are trained with masked language modeling, where they are trained to predict masked words in a given sentence. For example, given an input 'The [mask] ran away', the model is expected to infer plausible completions for [mask], such as 'cat'. We refer interested readers to appendix D.1 and D.5.1 for more details in our paper.
 
-![pcfg](assets/img/prog_distil/fig10.png){: width="30%" .center-image }
+![pcfg](assets/img/prog_distil/fig10.png){: width="60%" .center-image }
 
 
 One important concept in natural language processing is **n-grams**, which is defined as co-occurring n words in natural language. For example, "The cat" and "ran away" are examples of 2-grams. Under PCFGs, the hierarchical relationships between words are captured by a hierarchical relation tree among n-grams of different sizes.
@@ -162,7 +162,7 @@ We measure the robustness of the model’s output to removal of n-gram tokens th
 
 
 
-![pcfg_expts](assets/img/prog_distil/fig11.png){: width="30%" .center-image }
+![pcfg_expts](assets/img/prog_distil/fig11.png){: width="60%" .center-image }
 
  Motivated by the above observation, we define the curriculum in terms of the prediction dependencies on neighboring n-gram context words. We refer to the transition from short to long n-gram dependencies as the implicit n-gram curriculum, and connect the success of progressive distillation to such curriculum.
 
@@ -170,7 +170,7 @@ We measure the robustness of the model’s output to removal of n-gram tokens th
 **Progressive distillation can be effectively performed with just one intermediate checkpoint:** To further support the idea that the underlying curriculum drives the success of progressive distillation, we revisit our experiments where we try to utilize only one intermediate checkpoint. In particular, we show that successful progressive distillation can be achieved by first training with the intermediate teacher checkpoint corresponding to the inflection point, followed by training with the final teacher checkpoint for the remainder of the training. This finding is consistent with our observations on sparse parity tasks. 
 
 
-![2-shot_pcfg](assets/img/prog_distil/fig12.png){: width="30%" .center-image }
+![2-shot_pcfg](assets/img/prog_distil/fig12.png){: width="60%" .center-image }
 
 
 ## Interesting future directions
